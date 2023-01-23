@@ -21,7 +21,7 @@ const (
 )
 
 type ZerodhaApi struct {
-	// authentication settings
+	// authentication settings (zerodha user)
 	UserId    string
 	Password  string
 	ApiKey    string
@@ -31,8 +31,8 @@ type ZerodhaApi struct {
 	//ticker settings
 	TickerSubscribeTokens []uint32
 	TickerCh              chan kitemodels.Tick
-	TickerStatus          string
-	TickDebug             bool
+	IsTickerConnected     bool
+	TickDebug             bool // to print ticks info
 
 	// kite instance data
 	TicksPerSec int64

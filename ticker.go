@@ -26,12 +26,14 @@ type Tick struct {
 
 // Triggered when any error is raised
 func onError(err error) {
-	pZerodhaApi.TickerStatus = (fmt.Sprintln("ticker:false ConnError: ", err))
+	fmt.Println("\nticker:false ConnError: ", err)
+	pZerodhaApi.IsTickerConnected = false
 }
 
 // Triggered when websocket connection is closed
 func onClose(code int, reason string) {
-	pZerodhaApi.TickerStatus = (fmt.Sprintln("ticker:false ConnClosed: ", code, reason))
+	fmt.Println("\nticker:false ConnClosed: ", code, reason)
+	pZerodhaApi.IsTickerConnected = false
 }
 
 // Triggered when connection is established and ready to send and accept data
@@ -39,16 +41,19 @@ func onConnect() {
 
 	err := pZerodhaApi.Ticker.Subscribe(pZerodhaApi.TickerSubscribeTokens)
 	if err != nil {
-		pZerodhaApi.TickerStatus = fmt.Sprintln("ticker:false tokens:", len(pZerodhaApi.TickerSubscribeTokens), " mode:Default")
-
+		fmt.Println("ticker:false tokens-subscribed:", len(pZerodhaApi.TickerSubscribeTokens), " mode:Default")
+		pZerodhaApi.IsTickerConnected = false
 	} else {
-		pZerodhaApi.TickerStatus = fmt.Sprintln("ticker:true tokens:", len(pZerodhaApi.TickerSubscribeTokens), " mode:Default")
+		fmt.Println("ticker:true tokens-subscribed:", len(pZerodhaApi.TickerSubscribeTokens), " mode:Default")
+		pZerodhaApi.IsTickerConnected = true
 	}
 	err = pZerodhaApi.Ticker.SetMode("full", pZerodhaApi.TickerSubscribeTokens)
 	if err != nil {
-		pZerodhaApi.TickerStatus = fmt.Sprintln("ticker:false tokens:", len(pZerodhaApi.TickerSubscribeTokens), " mode:FULL")
+		fmt.Println("ticker:false tokens-subscribed:", len(pZerodhaApi.TickerSubscribeTokens), " mode:FULL")
+		pZerodhaApi.IsTickerConnected = false
 	} else {
-		pZerodhaApi.TickerStatus = fmt.Sprintln("ticker:true tokens:", len(pZerodhaApi.TickerSubscribeTokens), " mode:FULL")
+		fmt.Println("ticker:true tokens-subscribed:", len(pZerodhaApi.TickerSubscribeTokens), " mode:FULL")
+		pZerodhaApi.IsTickerConnected = true
 	}
 
 	ticksRate = *ratecounter.NewRateCounter(1 * time.Second)
@@ -72,11 +77,13 @@ func onTick(tick kitemodels.Tick) {
 
 // Triggered when reconnection is attempted which is enabled by default
 func onReconnect(attempt int, delay time.Duration) {
+	pZerodhaApi.IsTickerConnected = true
 	fmt.Printf("ticker:false ConnReconnect attempt %d in %fs\n", attempt, delay.Seconds())
 }
 
 // Triggered when maximum number of reconnect attempt is made and the program is terminated
 func onNoReconnect(attempt int) {
+	pZerodhaApi.IsTickerConnected = false
 	fmt.Printf("ticker:false ConnNoReconnect - Maximum no of reconnect attempt reached: %d", attempt)
 }
 
@@ -110,7 +117,7 @@ func (z *ZerodhaApi) StartTicker() {
 
 func (z *ZerodhaApi) CloseTicker() {
 
-	if z.IsKiteAuth && z.TickerStatus != "" {
+	if !z.IsTickerConnected {
 		z.Ticker.Stop()
 	}
 	time.Sleep(time.Second * 3) // delay for ticker to terminte connection before we close channel
