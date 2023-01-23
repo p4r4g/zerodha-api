@@ -13,17 +13,6 @@ import (
 var pZerodhaApi *ZerodhaApi
 var ticksRate ratecounter.RateCounter
 
-type Tick struct {
-	Timestamp       time.Time
-	InstrumentToken uint32
-	LastTradedPrice float64
-	LastPrice       float64
-	BuyDemand       uint32
-	SellDemand      uint32
-	TradesTillNow   uint32
-	OpenInterest    uint32
-}
-
 // Triggered when any error is raised
 func onError(err error) {
 	fmt.Println("\nticker:false ConnError: ", err)
@@ -92,6 +81,8 @@ func onOrderUpdate(order kiteconnect.Order) {
 	fmt.Println("order update ID:", order.OrderID)
 }
 
+// Registers instruments with zerodha for tick data
+// Setups call backs
 func (z *ZerodhaApi) StartTicker() {
 
 	if len(z.TickerSubscribeTokens) > 0 { // tokens provided?
@@ -115,6 +106,7 @@ func (z *ZerodhaApi) StartTicker() {
 	fmt.Printf("ticker:false TickerSubscribeTokens:<empty>")
 }
 
+// Closes the ticker and channel
 func (z *ZerodhaApi) CloseTicker() {
 
 	if !z.IsTickerConnected {
@@ -124,9 +116,9 @@ func (z *ZerodhaApi) CloseTicker() {
 
 	select {
 	case <-z.TickerCh:
-		// channel is closed, this is executed
+		// channel is closed
 	default:
-		// channel is still open, the previous case is not executed
+		// channel is still open, then close
 		close(z.TickerCh)
 	}
 

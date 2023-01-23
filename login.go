@@ -20,6 +20,10 @@ const (
 	reqTokenUrl      = "https://kite.zerodha.com/connect/login?v=3&api_key="
 )
 
+// struct has 3 categories of variables
+// 1. User information to be used for authentication
+// 2. Tikcer config varaibles
+// 3. Instance variables, there are updated by this package. For read only by the application
 type ZerodhaApi struct {
 	// authentication settings (zerodha user)
 	UserId    string
@@ -28,23 +32,23 @@ type ZerodhaApi struct {
 	ApiSecret string
 	TotpKey   string
 
-	//ticker settings
+	// ticker settings
 	TickerSubscribeTokens []uint32
 	TickerCh              chan kitemodels.Tick
-	IsTickerConnected     bool
-	TickDebug             bool // to print ticks info
+	TickDebug             bool // to print every tick
 
 	// kite instance data
-	TicksPerSec int64
-	Ticker      *kiteticker.Ticker
-
-	KiteConn     *kiteconnect.Client
-	IsKiteAuth   bool
-	KiteReqId    string
-	KiteReqToken string
-	AccessToken  string
+	Ticker            *kiteticker.Ticker
+	KiteConn          *kiteconnect.Client
+	TicksPerSec       int64 // number of ticks received per seconds
+	IsTickerConnected bool
+	IsKiteAuth        bool
+	KiteReqId         string
+	KiteReqToken      string
+	AccessToken       string
 }
 
+// Authencticates the user and stores the access token
 func New(za *ZerodhaApi) error {
 
 	za.IsKiteAuth = false
@@ -146,6 +150,7 @@ func (z *ZerodhaApi) getReqToken(req *requests.Request) error {
 	return errors.New("invalid api key")
 }
 
+// Returns the Equity part of margins data
 func (z ZerodhaApi) CashBalance() (float64, error) {
 
 	if !z.IsKiteAuth {
