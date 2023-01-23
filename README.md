@@ -38,17 +38,6 @@ This API provides two features - authentication and ticker.
 
 ---
 
-### To call API functions 
-
-Example - UserMargin
-
-```plaintext
-margins, _ := zd.KiteConn.GetUserMargins()
-fmt.Println(margins)
-```
-
----
-
 ## Using Ticker
 
 *   [ ] Create channel
@@ -111,6 +100,14 @@ if err != nil {
 	fmt.Println(err)
 } 
 ```
+### Call Zerodha APIs
+
+```plaintext
+margins, _ := zd.KiteConn.GetUserMargins()
+fmt.Println(margins)
+```
+
+
 ### Start Ticker Service
 
 ```plaintext
