@@ -1,6 +1,6 @@
 ## How to use
 
-This API provides two features, primarily authentication and ticker.
+This API provides two features - authentication and ticker.
 
 ### To Authenticate - Zerodha API
 
