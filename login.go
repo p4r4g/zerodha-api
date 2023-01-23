@@ -10,6 +10,8 @@ import (
 	"github.com/asmcos/requests"
 	totp "github.com/pquerna/otp/totp"
 	kiteconnect "github.com/zerodha/gokiteconnect/v4"
+	kitemodels "github.com/zerodha/gokiteconnect/v4/models"
+	kiteticker "github.com/zerodha/gokiteconnect/v4/ticker"
 )
 
 const (
@@ -19,16 +21,28 @@ const (
 )
 
 type ZerodhaApi struct {
+	// authentication settings
 	UserId    string
 	Password  string
 	ApiKey    string
 	ApiSecret string
 	TotpKey   string
 
+	//ticker settings
+	TickerSubscribeTokens []uint32
+	TickerCh              chan kitemodels.Tick
+	TickerStatus          string
+	TickDebug             bool
+
+	// kite instance data
+	TicksPerSec int64
+	Ticker      *kiteticker.Ticker
+
 	KiteConn     *kiteconnect.Client
 	IsKiteAuth   bool
 	KiteReqId    string
 	KiteReqToken string
+	AccessToken  string
 }
 
 func New(za *ZerodhaApi) error {
@@ -55,6 +69,7 @@ func New(za *ZerodhaApi) error {
 	}
 
 	za.KiteConn.SetAccessToken(data.AccessToken)
+	za.AccessToken = data.AccessToken
 
 	za.IsKiteAuth = true
 
@@ -69,8 +84,6 @@ func (z *ZerodhaApi) doCredentialAuth(req *requests.Request) error {
 	}
 
 	resp, err := req.Post(kiteLoginUrl, data)
-
-	print(resp)
 
 	if (err != nil) || (resp.R.StatusCode != 200) {
 		return errors.New("invalid credentials")
@@ -130,12 +143,7 @@ func (z *ZerodhaApi) getReqToken(req *requests.Request) error {
 		}
 
 	}
-
 	return errors.New("invalid api key")
-}
-
-func (z ZerodhaApi) UserMargins() (kiteconnect.AllMargins, error) {
-	return z.KiteConn.GetUserMargins()
 }
 
 func (z ZerodhaApi) CashBalance() (float64, error) {
