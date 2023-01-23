@@ -93,6 +93,53 @@ fmt.Println("ticks channel closed")
 }
 ```
 
+## Examples
+
+### Authentication
+
+```plaintext
+var zd zerodhaapi.ZerodhaApi        // create variable
+
+zd.UserId = ""                      // provide credentials
+zd.Password = ""
+zd.TotpKey = ""
+zd.ApiKey = ""
+zd.ApiSecret = ""
+
+err := zerodhaapi.New(&zd)          // Initiate connection
+if err != nil {
+	fmt.Println(err)
+} 
+```
+### Start Ticker Service
+
+```plaintext
+
+// ticker settings
+var TicksCh = make(chan kitemodels.Tick, 1000)          // create buffered ch
+zd.TickerSubscribeTokens = []uint32{8972034, 8972290}   // provide instruments
+zd.TickerCh = TicksCh                                   // assign the channel
+zd.StartTicker()                                        // start ticks websocket
+
+
+go demoTicksReceiver()                      // start ticks receiver
+time.Sleep(10 * time.Second)                // wait for 10 seconds
+zd.CloseTicker()                            // close ticker & ticks channel
+}
+// to receive ticks, closes when channel is closed 
+
+func demoTicksReceiver() {
+for v := range zd.TickerCh { // read from tick channel
+
+	fmt.Println("\nTime: ", v.Timestamp,
+		"Instrument: ", v.InstrumentToken,
+		"LastPrice: ", v.LastPrice)
+	fmt.Printf("ticksRatePerSec:%d ,", zd.TicksPerSec)
+}
+fmt.Println("ticks channel closed")
+}
+```
+
 ## Developer Settings
 
 #### Submit package
