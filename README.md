@@ -1,6 +1,14 @@
-## How to use
+Golang package to provide automated zerodha login/authentication and ticker setup. 
+Supports TOTP based authentication.
+This package is for demo purpose only. Use at your own will & risk.
 
-This API provides two features - authentication and ticker.
+## Installation
+
+```plaintext
+go get github.com/parag-b/zerodha-api
+```
+
+## How to use
 
 ### To Authenticate - Zerodha API
 
@@ -40,16 +48,16 @@ This API provides two features - authentication and ticker.
 
 ## Using Ticker
 
-*   [ ] Create channel
-
-```plaintext
-var TicksCh = make(chan kitemodels.Tick, 1000)          // create buffered ch
-```
-
-*   [ ] Provide tokens and channel info to recieve ticks
+*   [ ] Setup tokens for ticker subscription
 
 ```plaintext
 zd.TickerSubscribeTokens = []uint32{8972034, 8972290}   // provide instruments
+```
+
+*   [ ] Create channel and share reference
+
+```plaintext
+var TicksCh = make(chan kitemodels.Tick, 1000)          // create buffered ch
 zd.TickerCh = TicksCh                                   // assign the channel
 ```
 
@@ -120,20 +128,20 @@ zd.StartTicker()                                        // start ticks websocket
 
 
 go demoTicksReceiver()                      // start ticks receiver
-time.Sleep(10 * time.Second)                // wait for 10 seconds
-zd.CloseTicker()                            // close ticker & ticks channel
+    time.Sleep(10 * time.Second)                // wait for 10 seconds
+    zd.CloseTicker()                            // close ticker & ticks channel
 }
-// to receive ticks, closes when channel is closed 
 
+// to receive ticks, closes when channel is closed 
 func demoTicksReceiver() {
-for v := range zd.TickerCh { // read from tick channel
+    for v := range zd.TickerCh { // read from tick channel
 
 	fmt.Println("\nTime: ", v.Timestamp,
 		"Instrument: ", v.InstrumentToken,
 		"LastPrice: ", v.LastPrice)
 	fmt.Printf("ticksRatePerSec:%d ,", zd.TicksPerSec)
-}
-fmt.Println("ticks channel closed")
+    }
+    fmt.Println("ticks channel closed")
 }
 ```
 
