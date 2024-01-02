@@ -6,6 +6,7 @@ require (
 	github.com/asmcos/requests v0.0.0-20210319030608-c839e8ae4946
 	github.com/paulbellamy/ratecounter v0.2.0
 	github.com/pquerna/otp v1.4.0
+	github.com/rs/zerolog v1.31.0
 	github.com/zerodha/gokiteconnect/v4 v4.1.0
 )
 
@@ -14,4 +15,7 @@ require (
 	github.com/gocarina/gocsv v0.0.0-20180809181117-b8c38cb1ba36 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
+	golang.org/x/sys v0.12.0 // indirect
 )
